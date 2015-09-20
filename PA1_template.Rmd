@@ -14,6 +14,7 @@ On looking at the data, the dates were present as factors. Convert the dates to 
 StepsData = read.csv('activity.csv', header = T)
 str(StepsData)
 StepsData$date <- as.Date(StepsData$date)
+str(StepsData)
 ```
 
 ## What is mean total number of steps taken per day?
@@ -60,6 +61,52 @@ StepsDataByInterval[which.max(StepsDataByInterval$steps),c("interval")] # Interv
 
 ## Imputing missing values
 
+1. Reporting the total number of missing values
 
+```{r}
+sum(is.na(StepsData$steps)) # missing values
+```
+
+2&3. Impute the missing data and create a new dataset
+```{r}
+library(plyr)
+imputeWithMean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
+StepsDataImputed <- ddply(StepsData, ~interval, transform, steps = imputeWithMean(steps))
+```
+
+4. Plot histogram, compute the mean and median to see what are the differences from original dataset.
+```{r}
+StepsDataImputedByDate <- aggregate(StepsDataImputed[1],by=StepsDataImputed[2],FUN=sum,na.rm=TRUE)
+hist(StepsDataImputedByDate$steps,
+     breaks = 15,
+     col = "red",
+     main = "Total number of steps taken per day",
+     xlab = "Steps per day")
+mean(StepsDataImputedByDate$steps)   # meanImputed
+median(StepsDataImputedByDate$steps) # medianImputed
+```
+
+Interestingly, as seen in the histogram, because of the imputation, the number of days with 0-2500 steps has reduced drastically and the peak near the median has become higher, indicating that the distribution is more normal now than before. Also, becuase of this, the mean and median are now very close to each other. The mean has had a bigger change, and the median has only moved slightly.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+The following code chunk is used to create a variable with designation for the day as weekday or weekend
+```{r}
+StepsDataImputed$Day <- weekdays(StepsDataImputed$date)
+StepsDataImputed$DayDesignation <- "weekday"
+StepsDataImputed$DayDesignation [StepsDataImputed$Day %in% c("Saturday","Sunday")] <- "weekend"
+```
+
+To compare weekdays with weekends, the following code produces the plot.
+``` {r}
+StepsDataImputedByInterval <- aggregate(StepsDataImputed[1],
+                                   by=StepsDataImputed[c(3,5)],
+                                   FUN=mean,
+                                   na.rm=TRUE)
+library(ggplot2)
+plot <- ggplot(data = StepsDataImputedByInterval, aes(x=interval,y=steps))
+plot + geom_line() + facet_wrap(~DayDesignation,nrow=2)
+
+```
+
+

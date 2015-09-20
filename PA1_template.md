@@ -84,7 +84,7 @@ plot(x=StepsDataByInterval$interval,
 
 ![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
 
-Finally to determine which 5-minute interval has the highest number of steps taken, we use the following piece of code.
+Finally to determine **which 5-minute interval has the highest number of steps taken**, we use the following piece of code.
 
 
 ```r
@@ -109,7 +109,9 @@ sum(is.na(StepsData$steps)) # missing values
 ## [1] 2304
 ```
 
-2&3. Impute the missing data and create a new dataset
+2&3. Impute the missing data and create a new dataset. 
+
+**Imputation Strategy** - The missing values in an interval are replaced by the mean of all the non-NA values in the given interval. 
 
 ```r
 library(plyr)
@@ -172,4 +174,7 @@ plot + geom_line() + facet_wrap(~DayDesignation,nrow=2)
 
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
 
-
+Many interesting observations can be made using this plot.
+ - There are much lesser steps between 5 AM and 8 AM on weekends compared to weekdays, possibly indicating late start to the day
+ - In contrast, there are many more steps post 8 PM on weekends compared to weekdays, possibly indicating later end to the day.
+ - On weekends, the steps between 10AM and 6 PM are more compared to weekdays. This may be indicative of outdoor activities over the weekend, compared to desk jobs/ household work over the weekday.
